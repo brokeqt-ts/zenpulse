@@ -5,23 +5,20 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
 import { Meditation } from '../constants/meditations';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 32;
 
 interface Props {
   item: Meditation;
   isLocked: boolean;
   onPress: () => void;
+  cardWidth?: number;
 }
 
-export function MeditationCard({ item, isLocked, onPress }: Props) {
+export function MeditationCard({ item, isLocked, onPress, cardWidth }: Props) {
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, cardWidth ? { width: cardWidth } : undefined]}
       onPress={onPress}
       activeOpacity={0.85}
     >
@@ -60,7 +57,6 @@ export function MeditationCard({ item, isLocked, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    width: CARD_WIDTH,
     backgroundColor: '#1e1040',
     borderRadius: 16,
     marginHorizontal: 16,

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,9 +18,20 @@ import { MEDITATIONS, Meditation } from '../constants/meditations';
 import { useSubscription } from '../hooks/useSubscription';
 import { generateAffirmation, Mood } from '../services/affirmation';
 
+const WIDE_BREAKPOINT = 768;
+const CONTAINER_MAX = 880;
+
 export default function MeditationsScreen() {
   const insets = useSafeAreaInsets();
   const { isSubscribed, unsubscribe } = useSubscription();
+  const { width: windowWidth } = useWindowDimensions();
+  const isWide = windowWidth > WIDE_BREAKPOINT;
+  const numColumns = isWide ? 2 : 1;
+  const containerWidth = Math.min(windowWidth, CONTAINER_MAX);
+  // Ширина карточки: в 2 колонки — половина контейнера минус отступы
+  const cardWidth = isWide
+    ? (containerWidth - 16 * 2 - 12) / 2
+    : Math.min(windowWidth - 32, 398);
 
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [affirmation, setAffirmation] = useState<string | null>(null);
@@ -51,7 +63,7 @@ export default function MeditationsScreen() {
   };
 
   const ListHeader = () => (
-    <View>
+    <View style={isWide && { width: containerWidth }}>
       {/* Header */}
       <LinearGradient
         colors={['#0d0620', '#1a0533']}
@@ -59,7 +71,6 @@ export default function MeditationsScreen() {
       >
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.greeting}>Привет 👋</Text>
             <Text style={styles.title}>Твои медитации</Text>
           </View>
           <TouchableOpacity
@@ -120,20 +131,29 @@ export default function MeditationsScreen() {
 
   return (
     <LinearGradient colors={['#0d0620', '#0d0a1a']} style={styles.gradient}>
-      <FlatList
-        data={MEDITATIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <MeditationCard
-            item={item}
-            isLocked={item.isPremium && !isSubscribed}
-            onPress={() => handleCardPress(item)}
-          />
-        )}
-        ListHeaderComponent={ListHeader}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
-        showsVerticalScrollIndicator={false}
-      />
+      <View style={styles.centered}>
+        <FlatList
+          key={numColumns}
+          data={MEDITATIONS}
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+          renderItem={({ item }) => (
+            <MeditationCard
+              item={item}
+              isLocked={item.isPremium && !isSubscribed}
+              onPress={() => handleCardPress(item)}
+              cardWidth={cardWidth}
+            />
+          )}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={[
+            { paddingBottom: insets.bottom + 24 },
+            isWide && styles.wideContent,
+          ]}
+          showsVerticalScrollIndicator={false}
+          style={[styles.list, isWide && { maxWidth: CONTAINER_MAX }]}
+        />
+      </View>
     </LinearGradient>
   );
 }
@@ -141,6 +161,18 @@ export default function MeditationsScreen() {
 const styles = StyleSheet.create({
   gradient: {
     flex: 1,
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  list: {
+    width: '100%',
+    maxWidth: 430,
+  },
+  wideContent: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   header: {
     paddingHorizontal: 20,

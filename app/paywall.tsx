@@ -13,7 +13,10 @@ import { router } from 'expo-router';
 import { PlanToggle, Plan } from '../components/PlanToggle';
 import { useSubscription } from '../hooks/useSubscription';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+// Ограничиваем ширину и высоту контейнера — на больших экранах выглядит как мобильный
+const CONTENT_MAX_WIDTH = 430;
+const CONTENT_MAX_HEIGHT = 900;
 
 const BENEFITS = [
   { icon: '🧘', text: 'Безлимитные медитации и сон-истории' },
@@ -42,6 +45,7 @@ export default function PaywallScreen() {
       colors={['#0d0620', '#1a0533', '#0d1a40']}
       style={styles.gradient}
     >
+      <View style={styles.outer}>
       <View style={[styles.container, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8 }]}>
         <View style={styles.header}>
           <Text style={styles.logo}>✦ ZenPulse</Text>
@@ -51,19 +55,20 @@ export default function PaywallScreen() {
           </Text>
         </View>
 
-        <View style={styles.benefitsContainer}>
-          <Text style={styles.benefitsTitle}>Всё включено в Premium</Text>
-          {BENEFITS.map((b, i) => (
-            <View key={i} style={styles.benefitRow}>
-              <Text style={styles.benefitIcon}>{b.icon}</Text>
-              <Text style={styles.benefitText}>{b.text}</Text>
-              <Text style={styles.checkmark}>✓</Text>
-            </View>
-          ))}
+        <View style={styles.planSection}>
+          <View style={styles.benefitsContainer}>
+            <Text style={styles.benefitsTitle}>Всё включено в Premium</Text>
+            {BENEFITS.map((b, i) => (
+              <View key={i} style={styles.benefitRow}>
+                <Text style={styles.benefitIcon}>{b.icon}</Text>
+                <Text style={styles.benefitText}>{b.text}</Text>
+                <Text style={styles.checkmark}>✓</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.sectionLabel}>Выбери тариф</Text>
+          <PlanToggle selected={selectedPlan} onSelect={setSelectedPlan} />
         </View>
-
-        <Text style={styles.sectionLabel}>Выбери тариф</Text>
-        <PlanToggle selected={selectedPlan} onSelect={setSelectedPlan} />
 
         <TouchableOpacity
           style={styles.ctaButton}
@@ -97,6 +102,7 @@ export default function PaywallScreen() {
           <Text style={styles.restoreLink}>Уже подписан? Войти</Text>
         </TouchableOpacity>
       </View>
+      </View>
     </LinearGradient>
   );
 }
@@ -105,8 +111,15 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
-  container: {
+  outer: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  container: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    height: Math.min(height, CONTENT_MAX_HEIGHT),
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
@@ -116,7 +129,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     color: '#a78bfa',
-    fontSize: 12,
+    fontSize: 36,
     fontWeight: '700',
     letterSpacing: 3,
     textTransform: 'uppercase',
@@ -171,13 +184,17 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginLeft: 6,
   },
+  planSection: {
+    width: '100%',
+    gap: 8,
+  },
   sectionLabel: {
     color: '#9ca3af',
     fontSize: 11,
     fontWeight: '600',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    alignSelf: 'flex-start',
+    textAlign: 'center',
   },
   ctaButton: {
     width: '100%',
