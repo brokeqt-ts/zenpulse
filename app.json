@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "ZenPulse",
+    "slug": "zenpulse",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#1a0533"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.zenpulse.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a0533"
+      },
+      "package": "com.zenpulse.app"
+    },
+    "scheme": "zenpulse",
+    "plugins": ["expo-router"]
+  }
+}
